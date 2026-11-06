@@ -1,4 +1,4 @@
-name: Build Launcher APK — launcher-app archive
+name: Build Launcher APK
 
 on:
   workflow_dispatch:
@@ -14,7 +14,6 @@ jobs:
   build:
     name: Build and sign Launcher APK
     runs-on: ubuntu-latest
-    # Belt-and-suspenders: refuse to run unless dispatched against main.
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Enforce main-branch-only execution
@@ -28,14 +27,23 @@ jobs:
 
       - name: Checkout source
         uses: actions/checkout@v4
-        
+
+      - name: Verify Gradle root
+        run: |
+          set -euo pipefail
+          if [ ! -f "settings.gradle" ] && [ ! -f "settings.gradle.kts" ]; then
+            echo "ERROR: no settings.gradle(.kts) at repo root." >&2
+            ls -la
+            exit 1
+          fi
+          echo "Gradle root OK (repo root)."
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      # Restore the original workflow setup, with all Gradle and SDK caches disabled.
       - name: Set up Gradle without cache
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -67,7 +75,6 @@ jobs:
           echo "BatteryPulse PKCS12 keystore validated."
 
       - name: Clean and build signed release APK without caches
-        working-directory: branch-archive/launcher-app
         env:
           BATTERYPULSE_KEYSTORE_PATH: ${{ runner.temp }}/batterypulse-release.p12
           BATTERYPULSE_STORE_PASSWORD: ${{ secrets.BATTERYPULSE_STORE_PASSWORD }}
@@ -87,7 +94,6 @@ jobs:
           exit 1
 
       - name: Verify release APK signature
-        working-directory: branch-archive/launcher-app
         run: |
           set -euo pipefail
           APK="app/build/outputs/apk/release/D.S.Launcher-18.7.0.apk"
@@ -103,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: D.S-Launcher-18.7.0-signed-APK
-          path: branch-archive/launcher-app/app/build/outputs/apk/release/D.S.Launcher-18.7.0.apk
+          path: app/build/outputs/apk/release/D.S.Launcher-18.7.0.apk
           archive: false
           if-no-files-found: error
           retention-days: 14
