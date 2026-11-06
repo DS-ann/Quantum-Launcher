@@ -28,10 +28,7 @@ jobs:
 
       - name: Checkout source
         uses: actions/checkout@v4
-
-      - name: Restore deduplicated source files
-        run: python3 .github/scripts/restore_archive_duplicates.py --branch 'launcher-app'
-
+        
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
