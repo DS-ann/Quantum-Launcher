@@ -40,41 +40,37 @@ Keep your everyday apps close on a deliberately focused **two-page workspace**. 
 
 ## Screenshots
 
-The gallery below uses the original captures stored in [Screenshots/](Screenshots/).
+Swipe or horizontally scroll the gallery to explore the original captures. Select any image to open it at full size.
 
 <table>
   <tr>
-    <td align="center" width="33%">
-      <img src="Screenshots/1.png" alt="Quantum Launcher screenshot 01" width="260" />
-      <br /><sub>01</sub>
+    <td align="center" width="210">
+      <a href="Screenshots/1.png"><img src="Screenshots/1.png" alt="Quantum Launcher screenshot 01" width="190" /></a>
+      <br /><sub>01 / 07</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="Screenshots/2.png" alt="Quantum Launcher screenshot 02" width="260" />
-      <br /><sub>02</sub>
+    <td align="center" width="210">
+      <a href="Screenshots/2.png"><img src="Screenshots/2.png" alt="Quantum Launcher screenshot 02" width="190" /></a>
+      <br /><sub>02 / 07</sub>
     </td>
-    <td align="center" width="33%">
-      <img src="Screenshots/3.png" alt="Quantum Launcher screenshot 03" width="260" />
-      <br /><sub>03</sub>
+    <td align="center" width="210">
+      <a href="Screenshots/3.png"><img src="Screenshots/3.png" alt="Quantum Launcher screenshot 03" width="190" /></a>
+      <br /><sub>03 / 07</sub>
     </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="Screenshots/4.png" alt="Quantum Launcher screenshot 04" width="260" />
-      <br /><sub>04</sub>
+    <td align="center" width="210">
+      <a href="Screenshots/4.png"><img src="Screenshots/4.png" alt="Quantum Launcher screenshot 04" width="190" /></a>
+      <br /><sub>04 / 07</sub>
     </td>
-    <td align="center">
-      <img src="Screenshots/5.png" alt="Quantum Launcher screenshot 05" width="260" />
-      <br /><sub>05</sub>
+    <td align="center" width="210">
+      <a href="Screenshots/5.png"><img src="Screenshots/5.png" alt="Quantum Launcher screenshot 05" width="190" /></a>
+      <br /><sub>05 / 07</sub>
     </td>
-    <td align="center">
-      <img src="Screenshots/6.png" alt="Quantum Launcher screenshot 06" width="260" />
-      <br /><sub>06</sub>
+    <td align="center" width="210">
+      <a href="Screenshots/6.png"><img src="Screenshots/6.png" alt="Quantum Launcher screenshot 06" width="190" /></a>
+      <br /><sub>06 / 07</sub>
     </td>
-  </tr>
-  <tr>
-    <td align="center" colspan="3">
-      <img src="Screenshots/8.png" alt="Quantum Launcher screenshot 08" width="260" />
-      <br /><sub>08</sub>
+    <td align="center" width="210">
+      <a href="Screenshots/8.png"><img src="Screenshots/8.png" alt="Quantum Launcher screenshot 08" width="190" /></a>
+      <br /><sub>07 / 07</sub>
     </td>
   </tr>
 </table>
