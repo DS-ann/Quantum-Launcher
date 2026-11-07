@@ -15,7 +15,7 @@
     <a href="https://github.com/DS-ann/Quantum-Launcher/actions/workflows/Build.yml">
       <img src="https://github.com/DS-ann/Quantum-Launcher/actions/workflows/Build.yml/badge.svg?branch=main" alt="Build workflow status" />
     </a>
-    <img src="https://img.shields.io/badge/version-18.7.0-8B7CFF?style=flat" alt="Version 18.7.0" />
+    <img src="https://img.shields.io/badge/version-18.7.1-8B7CFF?style=flat" alt="Version 18.7.1" />
     <img src="https://img.shields.io/badge/Android-6.0%2B-3DDC84?style=flat&logo=android&logoColor=white" alt="Android 6.0 and newer" />
     <img src="https://img.shields.io/badge/Java-8%20source-ED8B00?style=flat&logo=openjdk&logoColor=white" alt="Java" />
     <img src="https://img.shields.io/badge/UI-Native%20Android-5271FF?style=flat" alt="Native Android UI" />
@@ -211,8 +211,8 @@ Quantum Launcher is configured for **Android 6.0 (API 23) and newer**.
 | Build setting | Value |
 |:--|:--|
 | Application ID | `com.dsann.launcher` |
-| Current version | `18.7.0` |
-| Version code | `180700` |
+| Current version | `18.7.1` |
+| Version code | `180701` |
 | Minimum SDK | `23` · Android 6.0 |
 | Target SDK | `37` |
 | Compile SDK | `37` |

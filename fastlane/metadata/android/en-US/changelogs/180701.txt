@@ -1,0 +1,1 @@
+Patch release: retains the two-page launcher and customization features, and includes the creator credit in BlankActivity. Adds the F-Droid store listing, icon, screenshots, and release notes.
