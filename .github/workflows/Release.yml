@@ -1,0 +1,202 @@
+name: Publish Quantum Launcher Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        description: Mark this release as a pre-release
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: quantum-launcher-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build, sign, and publish APK
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Enforce main-branch release
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Releases may only be published from the main branch." >&2
+            exit 1
+          fi
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Read app version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION_NAME="$(sed -n "s/^[[:space:]]*versionName[[:space:]]*'\\([^']*\\)'.*/\\1/p" app/build.gradle | head -n 1)"
+          VERSION_CODE="$(sed -n "s/^[[:space:]]*versionCode[[:space:]]*\\([0-9][0-9]*\\).*/\\1/p" app/build.gradle | head -n 1)"
+
+          if [ -z "$VERSION_NAME" ] || [ -z "$VERSION_CODE" ]; then
+            echo "Could not read versionName/versionCode from app/build.gradle." >&2
+            exit 1
+          fi
+
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "release_tag=v$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "Preparing Quantum Launcher $VERSION_NAME (versionCode $VERSION_CODE)."
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle without cache
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.1'
+          cache-disabled: true
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install Android 17 SDK and Build Tools
+        run: sdkmanager --channel=3 "platforms;android-37.0" "build-tools;37.0.0"
+
+      - name: Prepare and validate release signing key
+        env:
+          BATTERYPULSE_KEYSTORE_BASE64: ${{ secrets.BATTERYPULSE_KEYSTORE_BASE64 }}
+          BATTERYPULSE_STORE_PASSWORD: ${{ secrets.BATTERYPULSE_STORE_PASSWORD }}
+          BATTERYPULSE_KEY_ALIAS: ${{ secrets.BATTERYPULSE_KEY_ALIAS }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BATTERYPULSE_KEYSTORE_BASE64" ] || [ -z "$BATTERYPULSE_STORE_PASSWORD" ] || [ -z "$BATTERYPULSE_KEY_ALIAS" ]; then
+            echo "Release-signing secrets are incomplete. Configure the existing repository Actions secrets." >&2
+            exit 1
+          fi
+
+          printf '%s' "$BATTERYPULSE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/quantum-launcher-release.p12"
+          keytool -list -storetype PKCS12 \
+            -keystore "$RUNNER_TEMP/quantum-launcher-release.p12" \
+            -storepass "$BATTERYPULSE_STORE_PASSWORD" \
+            -alias "$BATTERYPULSE_KEY_ALIAS" >/dev/null
+          chmod 600 "$RUNNER_TEMP/quantum-launcher-release.p12"
+          echo "Release keystore validated."
+
+      - name: Build signed release APK
+        env:
+          BATTERYPULSE_KEYSTORE_PATH: ${{ runner.temp }}/quantum-launcher-release.p12
+          BATTERYPULSE_STORE_PASSWORD: ${{ secrets.BATTERYPULSE_STORE_PASSWORD }}
+          BATTERYPULSE_KEY_ALIAS: ${{ secrets.BATTERYPULSE_KEY_ALIAS }}
+          BATTERYPULSE_KEY_PASSWORD: ${{ secrets.BATTERYPULSE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if gradle --no-daemon --no-build-cache --no-configuration-cache --stacktrace clean assembleRelease; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Build attempt $attempt failed; retrying after a possible transient dependency-repository error."
+              sleep $((attempt * 15))
+            fi
+          done
+          exit 1
+
+      - name: Verify signature and prepare release asset
+        shell: bash
+        env:
+          VERSION_NAME: ${{ steps.version.outputs.version_name }}
+        run: |
+          set -euo pipefail
+          SOURCE_APK="app/build/outputs/apk/release/app-release.apk"
+          RELEASE_APK="app/build/outputs/apk/release/Quantum-Launcher-${VERSION_NAME}.apk"
+          APK_SIGNER="$ANDROID_HOME/build-tools/37.0.0/apksigner"
+
+          test -s "$SOURCE_APK"
+          test -x "$APK_SIGNER"
+          "$APK_SIGNER" verify --verbose "$SOURCE_APK"
+          cp "$SOURCE_APK" "$RELEASE_APK"
+          test -s "$RELEASE_APK"
+          echo "Verified signed APK: $RELEASE_APK"
+
+      - name: Write release description
+        shell: bash
+        env:
+          VERSION_NAME: ${{ steps.version.outputs.version_name }}
+          VERSION_CODE: ${{ steps.version.outputs.version_code }}
+        run: |
+          cat > RELEASE_NOTES.md <<EOF
+          <div align="center">
+
+          # ✦ Quantum Launcher ${VERSION_NAME}
+
+          **Your home screen. Your space. Your rules.**
+
+          A personal Android workspace built around expressive visuals, purposeful motion, and practical customization.
+
+          </div>
+
+          ---
+
+          ## ✨ Make your home screen yours
+
+          Quantum Launcher turns the Android home screen into a space you can shape around the way you use your device.
+
+          - **A focused two-page workspace** — keep your important apps and widgets organized across two home pages.
+          - **Home Studio** — tune layout, icons, typography, colors, clocks, drawer behavior, and transitions from one customization space.
+          - **Distinctive icon styles** — choose icon shapes, artwork treatments, backgrounds, and sizing.
+          - **Expressive clocks** — select from six clock styles, then personalize gradients, date presentation, and typography.
+          - **A configurable app drawer** — adjust columns, spacing, labels, sorting, opacity, and opening animations.
+          - **Groups, widgets, and shortcuts** — organize related apps and bring useful Android widgets onto your workspace.
+          - **Four built-in themes** — Midnight, Ocean, Violet, and Graphite, with wallpaper options to complete the look.
+
+          ## 🎬 Motion with character
+
+          Give the interface its own rhythm with home-page transitions including 3D Wheel, 3D Cube, Parallax, and Page Flip. The app drawer also has independent animation choices.
+
+          ## 📱 Compatibility
+
+          - **Minimum:** Android 6.0 (API 23)
+          - **Application:** `com.dsann.launcher`
+          - **Version:** ${VERSION_NAME} (version code ${VERSION_CODE})
+          - **Build:** Signed release APK
+
+          Android features such as widgets, wallpaper selection, accessibility settings, and default-home selection can vary by device and manufacturer.
+
+          ## ⬇️ Install
+
+          1. Download **Quantum-Launcher-${VERSION_NAME}.apk** from the Assets section below.
+          2. Open the downloaded APK and complete Android's installation prompts.
+          3. Press the Home button and select **Quantum Launcher** as your default home app.
+
+          > If Android blocks installation, allow installation from the app you used to open the APK, then retry.
+
+          ---
+
+          <div align="center">
+
+          **Quantum Launcher** · Designed to make your Android space feel like yours.
+
+          </div>
+          EOF
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.release_tag }}
+          name: "Quantum Launcher ${{ steps.version.outputs.version_name }} — Your Home, Reimagined"
+          target_commitish: main
+          body_path: RELEASE_NOTES.md
+          files: app/build/outputs/apk/release/Quantum-Launcher-${{ steps.version.outputs.version_name }}.apk
+          draft: false
+          prerelease: ${{ inputs.prerelease }}
+          make_latest: ${{ inputs.prerelease == false }}
