@@ -1,0 +1,1 @@
+Initial public release of Quantum Launcher 18.7.0. Includes a two-page home workspace, Home Studio customization, icon styles, six clock designs, configurable app drawer, app groups, Android widgets, contact and direct-call shortcuts, themes, and transition effects.

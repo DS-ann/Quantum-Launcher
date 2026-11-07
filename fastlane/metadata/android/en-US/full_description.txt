@@ -1,0 +1,22 @@
+Quantum Launcher is a customizable Android home-screen replacement built around a focused two-page workspace, flexible visual styling, and practical navigation.
+
+<b>Features</b>
+<ul>
+<li>Two home pages for apps and Android widgets</li>
+<li>Home Studio for layout, icon, typography, clock, drawer, and transition customization</li>
+<li>Multiple icon shapes, artwork treatments, and sizing controls</li>
+<li>Six clock styles with date, typography, and gradient options</li>
+<li>Configurable app drawer with sorting, spacing, opacity, and animations</li>
+<li>Rounded app groups, widgets, contact shortcuts, and direct-call shortcuts</li>
+<li>Midnight, Ocean, Violet, and Graphite themes</li>
+<li>Home-page transitions including 3D Wheel, 3D Cube, Parallax, and Page Flip</li>
+</ul>
+
+<b>Navigation</b>
+Hold an empty area on the first home page to open Home Studio. Swipe up to open the app drawer, swipe down to open Android Quick Settings, and swipe horizontally to switch between the two home pages.
+
+<b>Permissions and accessibility</b>
+The app does not declare the Internet permission. It declares the phone-call permission for direct-call shortcuts. Its optional accessibility service supports the swipe-down Quick Settings gesture and is configured not to retrieve window content.
+
+<b>Compatibility</b>
+Android 6.0 (API 23) and newer. Widget availability and some system interactions depend on the Android version and device manufacturer.
