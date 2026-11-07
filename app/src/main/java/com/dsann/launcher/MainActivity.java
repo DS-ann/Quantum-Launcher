@@ -82,6 +82,8 @@ public class MainActivity extends Activity {
 
     private static final int HOST_ID = 1407;
     private static final String PREFS = "ds_launcher_prefs";
+    private static final String KEY_HOME_BRAND_LABEL = "home_brand_label";
+    private static final String DEFAULT_HOME_BRAND_LABEL = "Q.Launcher";
     private static final String KEY_LAST_LAUNCHER_INSTALL_TIME = "last_launcher_install_time_for_workspace";
     private static final String KEY_HOME_APPS = "home_apps";
     private static final String KEY_APP_GROUP_IDS = "home_app_group_ids";
@@ -3213,7 +3215,7 @@ public class MainActivity extends Activity {
             if (roleRequest == null) return;
             homeRoleRequestAttempted = true;
             Toast.makeText(this,
-                    "Choose PhoneBridge as the Home app to keep it as your default launcher.",
+                    "Choose Quantum Launcher as the Home app to keep it as your default launcher.",
                     Toast.LENGTH_LONG).show();
             startActivityForResult(roleRequest, REQUEST_HOME_ROLE);
         } catch (RuntimeException ignored) {
@@ -3272,7 +3274,7 @@ public class MainActivity extends Activity {
 
         // A few Android builds temporarily omit an app's own launcher component from
         // queryIntentActivities while returning from an activity in the same package.
-        // Keep exactly one real BlankActivity ResolveInfo so the D.S Launcher icon survives
+        // Keep exactly one real BlankActivity ResolveInfo so the Quantum Launcher icon survives
         // every onResume/package refresh instead of disappearing after Back.
         boolean hasBlankActivity = false;
         for (int index = result.size() - 1; index >= 0; index--) {
@@ -3632,22 +3634,65 @@ public class MainActivity extends Activity {
         }
     }
 
+    private String getHomeBrandLabel() {
+        return normalizeHomeBrandLabel(prefs == null
+                ? DEFAULT_HOME_BRAND_LABEL
+                : prefs.getString(KEY_HOME_BRAND_LABEL, DEFAULT_HOME_BRAND_LABEL));
+    }
+
+    /** Keep the user-editable launcher signature to at most ten whitespace-delimited words. */
+    private String normalizeHomeBrandLabel(String value) {
+        String normalized = value == null ? "" : value.trim().replaceAll("\\s+", " ");
+        if (normalized.isEmpty()) return DEFAULT_HOME_BRAND_LABEL;
+        String[] words = normalized.split(" ");
+        if (words.length <= 10) return normalized;
+        StringBuilder limited = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            if (i > 0) limited.append(' ');
+            limited.append(words[i]);
+        }
+        return limited.toString();
+    }
+
+    private int homeBrandLabelWordCount(String value) {
+        String normalized = value == null ? "" : value.trim();
+        return normalized.isEmpty() ? 0 : normalized.split("\\s+").length;
+    }
+
+    private void applyHomeBrandLabel() {
+        final TextView label = brandText;
+        if (label == null) return;
+        label.setText(getHomeBrandLabel());
+        label.getPaint().setShader(null);
+        label.post(() -> {
+            if (label != brandText) return;
+            float measuredWidth = Math.max(1f,
+                    label.getPaint().measureText(label.getText().toString()));
+            float gradientWidth = label.getWidth() > 0
+                    ? Math.max(1f, Math.min(measuredWidth, label.getWidth()))
+                    : measuredWidth;
+            label.getPaint().setShader(new android.graphics.LinearGradient(0f, 0f,
+                    gradientWidth, 0f,
+                    new int[] {Color.rgb(190, 255, 92), Color.rgb(64, 232, 179),
+                            Color.rgb(22, 135, 145)},
+                    null, android.graphics.Shader.TileMode.CLAMP));
+            label.invalidate();
+        });
+    }
+
     private void buildHomeChrome() {
         LinearLayout header = new LinearLayout(this);
         header.setGravity(Gravity.CENTER_VERTICAL);
-        TextView brand = LauncherUiUtils.text(this, "D.Sannigrahi", 12, Color.rgb(210, 220, 255), true);
+        TextView brand = LauncherUiUtils.text(this, getHomeBrandLabel(), 12,
+                Color.rgb(210, 220, 255), true);
         brandText = brand;
         // Handwritten launcher signature, with a lime-to-mint-to-teal gradient distinct
         // from the blue/violet Home Studio accent.
         brand.setTypeface(Typeface.create("cursive", Typeface.NORMAL));
+        brand.setSingleLine(true);
+        brand.setEllipsize(android.text.TextUtils.TruncateAt.END);
         brand.setLetterSpacing(0.035f);
-        brand.post(() -> {
-            float textWidth = Math.max(1f, brand.getPaint().measureText(brand.getText().toString()));
-            brand.getPaint().setShader(new android.graphics.LinearGradient(0f, 0f, textWidth, 0f,
-                    new int[] {Color.rgb(190, 255, 92), Color.rgb(64, 232, 179),
-                            Color.rgb(22, 135, 145)}, null, android.graphics.Shader.TileMode.CLAMP));
-            brand.invalidate();
-        });
+        applyHomeBrandLabel();
         header.addView(brand, new LinearLayout.LayoutParams(0, LauncherUiUtils.dp(this, 32), 1f));
         homeScreen.addView(header);
 
@@ -5486,7 +5531,7 @@ public class MainActivity extends Activity {
     private void shareAppGroup(String groupId) {
         ArrayList<String> members = getAppGroupMembers(groupId);
         StringBuilder text = new StringBuilder();
-        text.append("D.S Launcher app group: ").append(getAppGroupLabel(groupId)).append("\n");
+        text.append("Quantum Launcher app group: ").append(getAppGroupLabel(groupId)).append("\n");
         if (members.isEmpty()) {
             text.append("No apps in this group.");
         } else {
@@ -5564,14 +5609,14 @@ public class MainActivity extends Activity {
         try {
             openAppGroupDialog(groupId, sessionId);
         } catch (RuntimeException error) {
-            android.util.Log.e("D.S Launcher", "Unable to open app group", error);
+            android.util.Log.e("Quantum Launcher", "Unable to open app group", error);
             Dialog dialog = activeAppGroupDialog;
             if (dialog != null && dialog.isShowing()) {
                 try {
                     dialog.dismiss();
                     // onDismiss owns release after renderer cleanup if the window was attached.
                 } catch (RuntimeException dismissError) {
-                    android.util.Log.w("D.S Launcher", "Unable to dismiss failed app group",
+                    android.util.Log.w("Quantum Launcher", "Unable to dismiss failed app group",
                             dismissError);
                     if (activeAppGroupDialog == dialog && !dialog.isShowing()) {
                         releaseAppGroupOpenGuard(sessionId, dialog);
@@ -5653,7 +5698,7 @@ public class MainActivity extends Activity {
                         try {
                             layerView.setLayerType(View.LAYER_TYPE_NONE, null);
                         } catch (RuntimeException cleanupError) {
-                            android.util.Log.w("D.S Launcher",
+                            android.util.Log.w("Quantum Launcher",
                                     "Unable to release an app-group layer", cleanupError);
                         }
                     }
@@ -5668,7 +5713,7 @@ public class MainActivity extends Activity {
                         snapshot.setLayerType(View.LAYER_TYPE_NONE, null);
                         snapshot.setImageDrawable(null);
                     } catch (RuntimeException cleanupError) {
-                        android.util.Log.w("D.S Launcher",
+                        android.util.Log.w("Quantum Launcher",
                                 "Unable to release the app-group snapshot view", cleanupError);
                     }
                 }
@@ -6273,7 +6318,7 @@ public class MainActivity extends Activity {
                 // The area around the app-group card remains fully transparent.
                 dimLayer.setAlpha(0f);
                 } catch (RuntimeException error) {
-                    android.util.Log.e("D.S Launcher", "App-group opening animation failed",
+                    android.util.Log.e("Quantum Launcher", "App-group opening animation failed",
                             error);
                     handler.post(() -> {
                         try {
@@ -6284,7 +6329,7 @@ public class MainActivity extends Activity {
                                 releaseAppGroupOpenGuard(sessionId, dialog);
                             }
                         } catch (RuntimeException dismissError) {
-                            android.util.Log.w("D.S Launcher",
+                            android.util.Log.w("Quantum Launcher",
                                     "Unable to dismiss failed app-group animation",
                                     dismissError);
                             if (activeAppGroupDialog == dialog) activeAppGroupDialog = null;
@@ -6359,7 +6404,7 @@ public class MainActivity extends Activity {
             };
             startTransitionWhenReady[0].run();
             } catch (RuntimeException error) {
-                android.util.Log.e("D.S Launcher", "App-group opening setup failed", error);
+                android.util.Log.e("Quantum Launcher", "App-group opening setup failed", error);
                 try {
                     if (dialog.isShowing()) {
                         dialog.dismiss();
@@ -6368,7 +6413,7 @@ public class MainActivity extends Activity {
                         releaseAppGroupOpenGuard(sessionId, dialog);
                     }
                 } catch (RuntimeException dismissError) {
-                    android.util.Log.w("D.S Launcher", "Unable to dismiss failed app group",
+                    android.util.Log.w("Quantum Launcher", "Unable to dismiss failed app group",
                             dismissError);
                     if (activeAppGroupDialog == dialog) activeAppGroupDialog = null;
                     releaseAppGroupOpenGuard(sessionId, dialog);
@@ -10861,7 +10906,7 @@ public class MainActivity extends Activity {
     private void openControlCenter() {
         if (NotificationShadeAccessibilityService.openQuickSettings()) return;
         Toast.makeText(this,
-                "Enable PhoneBridge Launcher in Accessibility settings to open Quick Settings by swipe",
+                "Enable Quantum Launcher Launcher in Accessibility settings to open Quick Settings by swipe",
                 Toast.LENGTH_LONG).show();
         try {
             startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
@@ -11608,11 +11653,11 @@ public class MainActivity extends Activity {
         if (requestCode == REQUEST_HOME_ROLE) {
             if (Build.VERSION.SDK_INT >= 29) {
                 if (Api29HomeRoleManager.isHomeRoleHeld(this)) {
-                    Toast.makeText(this, "PhoneBridge is now the default Home app.",
+                    Toast.makeText(this, "Quantum Launcher is now the default Home app.",
                             Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this,
-                            "PhoneBridge is not the default Home app. Select it under Settings > Default apps > Home app.",
+                            "Quantum Launcher is not the default Home app. Select it under Settings > Default apps > Home app.",
                             Toast.LENGTH_LONG).show();
                 }
             }
@@ -19349,6 +19394,29 @@ public class MainActivity extends Activity {
             showCustomizationMenu(dialog, scroll.getScrollY(), false);
         });
 
+        addSection(content, "Launcher identity");
+        addSettingRow(content, "Aa", "Home brand label",
+                getHomeBrandLabel() + " · " + homeBrandLabelWordCount(getHomeBrandLabel())
+                        + "/10 words", () -> {
+            showStudioTextInputPrompt("Home brand label",
+                    "Maximum 10 words; blank restores Q.Launcher",
+                    getHomeBrandLabel(), "Save", value -> {
+                int requestedWordCount = homeBrandLabelWordCount(value);
+                String updatedLabel = normalizeHomeBrandLabel(value);
+                if (value == null || value.trim().isEmpty()) {
+                    prefs.edit().remove(KEY_HOME_BRAND_LABEL).apply();
+                } else {
+                    prefs.edit().putString(KEY_HOME_BRAND_LABEL, updatedLabel).apply();
+                }
+                applyHomeBrandLabel();
+                if (requestedWordCount > 10) {
+                    Toast.makeText(this, "Home brand label is limited to 10 words.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                showCustomizationMenu(dialog, scroll.getScrollY(), false);
+            });
+        });
+
         addSection(content, "Manage layout");
         addSettingRow(content, "＋", "Add apps to Home", "Choose shortcuts for the home screen", () -> { dialog.dismiss(); showAddApps(currentPage); });
         addSettingRow(content, "⌂", "Reset Home layout", "Restore default shortcuts and grid", () -> {
@@ -19364,10 +19432,10 @@ public class MainActivity extends Activity {
             homePackages.clear(); currentPage = 0; restoreHomeApps();
             applyHomeWallpaper(); drawerScreen.setBackground(drawerBackground());
             drawerGrid.setNumColumns(getDrawerColumns()); drawerGrid.setVerticalSpacing(LauncherUiUtils.dp(this, 8)); drawerGrid.setHorizontalSpacing(LauncherUiUtils.dp(this, 4));
-            applyBrandVisibility(); loadApps(); renderHomePages(false); showCustomizationMenu(dialog, scroll.getScrollY(), false);
+            applyHomeBrandLabel(); applyBrandVisibility(); loadApps(); renderHomePages(false); showCustomizationMenu(dialog, scroll.getScrollY(), false);
         });
 
-        TextView authorCredit = LauncherUiUtils.text(this, "made by Debarghya Sannigrahi",
+        TextView authorCredit = LauncherUiUtils.text(this, getHomeBrandLabel(),
                 24, Color.WHITE, false);
         authorCredit.setTypeface(android.graphics.Typeface.create("cursive",
                 android.graphics.Typeface.NORMAL));

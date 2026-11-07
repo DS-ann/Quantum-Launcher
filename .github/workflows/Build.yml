@@ -1,4 +1,4 @@
-name: Build Launcher APK
+name: Build Quantum Launcher APK
 
 on:
   workflow_dispatch:
@@ -7,12 +7,12 @@ permissions:
   contents: write
 
 concurrency:
-  group: launcher-app-build-${{ github.sha }}
+  group: quantum-launcher-build-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Build and sign Launcher APK
+    name: Build and sign Quantum Launcher APK
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -96,20 +96,20 @@ jobs:
       - name: Verify release APK signature
         run: |
           set -euo pipefail
-          APK="app/build/outputs/apk/release/D.S.Launcher-18.7.0.apk"
+          APK="app/build/outputs/apk/release/Quantum-Launcher-18.7.0.apk"
           APK_SIGNER="$ANDROID_HOME/build-tools/37.0.0/apksigner"
           test -s "app/build/outputs/apk/release/app-release.apk"
           cp "app/build/outputs/apk/release/app-release.apk" "$APK"
           test -s "$APK"
           test -x "$APK_SIGNER"
           "$APK_SIGNER" verify --verbose "$APK"
-          echo "Signed D.S Launcher 18.7.0 APK verified."
+          echo "Signed Quantum Launcher 18.7.0 APK verified."
 
       - name: Upload signed APK as workflow artifact
         uses: actions/upload-artifact@v7
         with:
-          name: D.S-Launcher-18.7.0-signed-APK
-          path: app/build/outputs/apk/release/D.S.Launcher-18.7.0.apk
+          name: Quantum-Launcher-18.7.0-signed-APK
+          path: app/build/outputs/apk/release/Quantum-Launcher-18.7.0.apk
           archive: false
           if-no-files-found: error
           retention-days: 14

@@ -32,7 +32,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 /**
- * The destination behind D.S Launcher's own app-drawer icon.
+ * The destination behind Quantum Launcher's own app-drawer icon.
  * This is intentionally separate from MainActivity, which remains the HOME screen.
  */
 public final class BlankActivity extends Activity {
@@ -281,13 +281,13 @@ public final class BlankActivity extends Activity {
         outer.addView(inner, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        ColorFlowTextView overline = makeGradientText("CREATOR CREDIT", compact ? 8f : 10f,
+        ColorFlowTextView overline = makeGradientText("HOME BRAND LABEL", compact ? 8f : 10f,
                 "monospace", android.graphics.Typeface.BOLD);
         overline.setLetterSpacing(0.2f);
         overline.setGravity(Gravity.CENTER);
         inner.addView(overline);
 
-        ColorFlowTextView credit = makeGradientText("Created by Debarghya Sannigrahi",
+        ColorFlowTextView credit = makeGradientText(getHomeBrandLabel(),
                 compact ? 10.5f : 15.5f,
                 "monospace", android.graphics.Typeface.BOLD);
         credit.setGravity(Gravity.CENTER);
@@ -614,8 +614,23 @@ public final class BlankActivity extends Activity {
             return getPackageManager().getApplicationLabel(
                     getPackageManager().getApplicationInfo(getPackageName(), 0));
         } catch (PackageManager.NameNotFoundException ignored) {
-            return "D.S Launcher";
+            return "Quantum Launcher";
         }
+    }
+
+    private String getHomeBrandLabel() {
+        String value = getSharedPreferences("ds_launcher_prefs", MODE_PRIVATE)
+                .getString("home_brand_label", "Q.Launcher");
+        String normalized = value == null ? "" : value.trim().replaceAll("\\s+", " ");
+        if (normalized.isEmpty()) return "Q.Launcher";
+        String[] words = normalized.split(" ");
+        if (words.length <= 10) return normalized;
+        StringBuilder limited = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            if (i > 0) limited.append(' ');
+            limited.append(words[i]);
+        }
+        return limited.toString();
     }
 
     private String getVersionLabel() {

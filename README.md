@@ -1,17 +1,17 @@
-# My Launcher
+# Quantum Launcher
 
-A lightweight, customizable Android home-screen launcher built in Java for the `DS-ann/PhoneBridge` project.
+A lightweight, customizable Android home-screen launcher built in Java in the `DS-ann/Quantum-Launcher` repository.
 
-My Launcher is designed around a clean dark interface, configurable home-screen layout, practical shortcuts and widgets, and a custom page-transition effect. The project avoids third-party UI frameworks and uses Android's native view system.
+Quantum Launcher is designed around a clean dark interface, configurable home-screen layout, practical shortcuts and widgets, and a custom page-transition effect. The project avoids third-party UI frameworks and uses Android's native view system.
 
-> **Branch:** `launcher-app` · **Package:** `com.dsann.launcher` · **Minimum Android:** Android 6.0 (API 23)
+> **Branch:** `main` · **Package:** `com.dsann.launcher` · **Minimum Android:** Android 6.0 (API 23)
 
 ## Highlights
 
 - **Home screen and app drawer** — browse installed launchable apps, open them, and use long-press actions.
 - **Multiple home pages** — organize shortcuts across pages and navigate with horizontal swipes.
 - **3D wheel-style page transition** — the active page pivots around a vertical edge as the adjacent page comes into view.
-- **Home Studio customization** — adjust layout and appearance, including clock size and position, page rotation, animation speed, icon sizing, grid columns, labels, and other available display options.
+- **Home Studio customization** — adjust layout and appearance, including clock size and position, page rotation, animation speed, icon sizing, grid columns, and a custom home brand label limited to 10 words (default: `Q.Launcher`).
 - **Clock and date** — configurable clock presentation, 12/24-hour format, and optional date display.
 - **App shortcuts and dock** — pin apps to the home screen, organize shortcuts, and keep frequently used apps in the dock.
 - **Contact / direct-call shortcut support** — create a contact shortcut and configure its home-screen placement and size. Android may request call permission before placing a call.
@@ -38,30 +38,29 @@ The launcher is intended to run on Android 6.0 and later. Android versions and d
 
 ### Download the signed APK directly
 
-Open the [D.S Launcher 18.7.0 release](https://github.com/DS-ann/D.S-Apps/releases/tag/v18.7.0) and select **D.S.Launcher-18.7.0.apk** under Assets, or [download the APK directly](https://github.com/DS-ann/D.S-Apps/releases/download/v18.7.0/D.S.Launcher-18.7.0.apk). This is a direct APK file; no artifact ZIP needs to be extracted.
+Open the [Quantum Launcher Actions workflow runs](https://github.com/DS-ann/Quantum-Launcher/actions/workflows/Build.yml) and select the newest successful **Build Quantum Launcher APK** run. Download the **Quantum-Launcher-18.7.0-signed-APK** artifact. The workflow uploads the signed `.apk` directly, without wrapping it in a ZIP archive.
 
-Successful builds on `main` replace the release's APK asset after the signature check passes. Pull-request builds run the build and signature checks but do not publish a release asset.
+The workflow runs only on `main` and is started manually with **Run workflow**. It does not publish a GitHub Release; the verified APK is available in the workflow run's **Artifacts** section.
 
 If Android blocks installation, allow installation from the app you used to open the APK, where required by your Android version and device settings.
 
-### Set My Launcher as the default home app
+### Set Quantum Launcher as the default home app
 
-1. Install and open **My Launcher**.
+1. Install and open **Quantum Launcher**.
 2. Press the device's Home button.
-3. If Android displays a home-app chooser, select **My Launcher** and choose the desired default option.
-4. If no chooser appears, open Android's default-app or Home-app settings and select **My Launcher**.
+3. If Android displays a home-app chooser, select **Quantum Launcher** and choose the desired default option.
+4. If no chooser appears, open Android's default-app or Home-app settings and select **Quantum Launcher**.
 
 Menu names vary between Android versions and manufacturers.
 
 ## Build with GitHub Actions
 
-The repository includes a workflow at [`.github/workflows/launcher-app-build.yml`](../../.github/workflows/launcher-app-build.yml).
+The repository includes a workflow at [`.github/workflows/Build.yml`](../../.github/workflows/Build.yml).
 
-- Runs on pushes to `launcher-app` and can be started manually with **Run workflow**.
+- Runs manually with **Run workflow**** on the `main` branch.
 - Uses JDK 17, Gradle 8.7, and Android Build Tools 35.0.0.
-- Builds the signed release APK and verifies its signature before publishing.
-- Publishes the APK as a direct `.apk` asset on the existing GitHub Release after a successful push to `main`.
-- Does not upload ZIP-wrapped Actions artifacts.
+- Builds and signs the release APK, then verifies its signature before uploading the workflow artifact.
+- Uploads the `.apk` itself as a workflow artifact, without a ZIP wrapper.
 
 The release workflow requires the repository's configured signing secrets for the existing PKCS#12 keystore. The secret values must remain in GitHub Actions Secrets; do not commit keystores, passwords, signing keys, or generated APKs to the repository.
 
@@ -94,7 +93,7 @@ Key files:
 - **`LauncherUiUtils.java`** — shared UI helpers.
 - **`AndroidManifest.xml`** — launcher entry points, Home intent filter, and declared permissions.
 - **`app/build.gradle`** — Android SDK levels, app identity, and Java compatibility.
-- **`.github/workflows/launcher-app-build.yml`** — automated release build, signing verification, and direct APK release upload.
+- **`.github/workflows/Build.yml`** — automated release build, signing verification, and direct APK release upload.
 
 ## Development notes
 
