@@ -348,7 +348,11 @@ When reporting an issue, include the Android version, device model, reproduction
 
 ## License
 
-No license is currently included in this repository. Until one is added, do not assume the source is available for unrestricted reuse, redistribution, or modification.
+Quantum Launcher is licensed under the **Apache License, Version 2.0**.
+
+You are permitted to use, modify, and distribute this project in accordance with the terms and conditions of the license. The full license text, including its copyright and patent grants, redistribution conditions, and disclaimers, is available in the [LICENSE](LICENSE) file.
+
+The Apache License does not grant permission to use project trademarks, product names, or branding outside the terms stated in the license.
 
 ---
 
