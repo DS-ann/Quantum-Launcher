@@ -57,12 +57,12 @@ Menu names vary between Android versions and manufacturers.
 
 The repository includes a workflow at [`.github/workflows/Build.yml`](../../.github/workflows/Build.yml).
 
-- Runs manually with **Run workflow**** on the `main` branch.
-- Uses JDK 17, Gradle 8.7, and Android Build Tools 35.0.0.
+- Runs manually with **Run workflow** on the `main` branch.
+- Uses JDK 17, Gradle 9.3.1, and Android Build Tools 37.0.0.
 - Builds and signs the release APK, then verifies its signature before uploading the workflow artifact.
 - Uploads the `.apk` itself as a workflow artifact, without a ZIP wrapper.
 
-The release workflow requires the repository's configured signing secrets for the existing PKCS#12 keystore. The secret values must remain in GitHub Actions Secrets; do not commit keystores, passwords, signing keys, or generated APKs to the repository.
+The build workflow requires the repository's configured signing secrets for the existing PKCS#12 keystore. The secret values must remain in GitHub Actions Secrets; do not commit keystores, passwords, signing keys, or generated APKs to the repository.
 
 A successful workflow confirms that the release APK was built and its signature verified. It does **not** prove that every gesture, widget provider, call flow, or device-specific behavior works correctly at runtime.
 
@@ -93,7 +93,7 @@ Key files:
 - **`LauncherUiUtils.java`** — shared UI helpers.
 - **`AndroidManifest.xml`** — launcher entry points, Home intent filter, and declared permissions.
 - **`app/build.gradle`** — Android SDK levels, app identity, and Java compatibility.
-- **`.github/workflows/Build.yml`** — automated release build, signing verification, and direct APK release upload.
+- **`.github/workflows/Build.yml`** — manual APK build, signing verification, and direct APK workflow-artifact upload.
 
 ## Development notes
 

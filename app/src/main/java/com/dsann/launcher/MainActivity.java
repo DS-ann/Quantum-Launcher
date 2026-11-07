@@ -10906,7 +10906,7 @@ public class MainActivity extends Activity {
     private void openControlCenter() {
         if (NotificationShadeAccessibilityService.openQuickSettings()) return;
         Toast.makeText(this,
-                "Enable Quantum Launcher Launcher in Accessibility settings to open Quick Settings by swipe",
+                "Enable Quantum Launcher in Accessibility settings to open Quick Settings by swipe",
                 Toast.LENGTH_LONG).show();
         try {
             startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
