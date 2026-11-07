@@ -305,6 +305,26 @@ public final class BlankActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(1));
         boundaryParams.topMargin = dp(compact ? 4 : 16);
         inner.addView(boundary, boundaryParams);
+
+        // Keep the creator attribution independent from the editable home-brand label.
+        ColorFlowTextView creatorHeading = makeGradientText("CREATED BY",
+                compact ? 7.5f : 9f, "monospace", android.graphics.Typeface.BOLD);
+        creatorHeading.setGravity(Gravity.CENTER);
+        creatorHeading.setLetterSpacing(0.18f);
+        LinearLayout.LayoutParams creatorHeadingParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        creatorHeadingParams.topMargin = dp(compact ? 4 : 10);
+        inner.addView(creatorHeading, creatorHeadingParams);
+
+        ColorFlowTextView creatorName = makeGradientText("Debarghya Sannigrahi",
+                compact ? 9.5f : 13f, "cursive", android.graphics.Typeface.BOLD);
+        creatorName.setGravity(Gravity.CENTER);
+        creatorName.setSingleLine(true);
+        creatorName.setIncludeFontPadding(false);
+        LinearLayout.LayoutParams creatorNameParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        creatorNameParams.topMargin = dp(compact ? 1 : 3);
+        inner.addView(creatorName, creatorNameParams);
         return outer;
     }
 
